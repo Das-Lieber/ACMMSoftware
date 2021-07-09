@@ -54,7 +54,6 @@ void explanation::showUi(){
     exUisetMain();
     connect(OKButton,&QPushButton::clicked,[=](){
         this->close();
-        emit connectDone();
     });
 }
 void explanation::exUisetMain(){

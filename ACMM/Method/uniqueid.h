@@ -38,6 +38,7 @@ private:
     void connectPart();
 signals:
     void formButtonEnable();
+    void connectDone();
 public slots:
 };
 

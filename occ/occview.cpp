@@ -257,12 +257,12 @@ void occView::createLabel(QList<QList<gp_Pnt>> plist, QList<QList<gp_Pnt>> virtD
     gp_Pnt P1;//所有点的中心位置
     int size = 0;
     double px=0,py=0,pz=0;
+    QList<Handle(AIS_Shape)> polys;
     foreach(QList<gp_Pnt> pl, virtData) {
         TopoDS_Shape polygon = ModelMaker::make_polygon(pl);
         Handle(AIS_Shape) polylines = new AIS_Shape(polygon);
         polylines->SetColor(Quantity_NOC_YELLOW3);
-        m_context->Display(polylines, Standard_True);
-        m_context->Deactivate(polylines);
+        polys.append(polylines);
 
         foreach(gp_Pnt pnt,pl) {
             px+=pnt.X();
@@ -285,7 +285,17 @@ void occView::createLabel(QList<QList<gp_Pnt>> plist, QList<QList<gp_Pnt>> virtD
 
     //3.传入数据并处理
     aItm->setData(plist);
-    aItm->Evaluate();
+    if(!aItm->Evaluate())
+    {
+        delete aItm;
+        delete measureLabel;
+        return;
+    }
+
+    foreach(Handle(AIS_Shape) polylines,polys) {
+        m_context->Display(polylines, Standard_True);
+        m_context->Deactivate(polylines);
+    }
 
     //4.绘制
     gp_Pnt P2 = gp_Pnt(P1.X()+10,P1.Y()+10,P1.Z()+10);//设置标签起点初始坐标

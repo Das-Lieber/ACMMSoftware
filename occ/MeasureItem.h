@@ -14,9 +14,12 @@ public:
 
     void setLabel(LabelWidget *lab);
     void setData(const QList<QList<gp_Pnt> > &data);
-    void Evaluate();
+    bool Evaluate();
 
-    QString getID() const;
+    QString getTitle() const;
+    QStringList getFeatureInfo() const {
+        return mFeatInfo;
+    }
 
     LabelWidget* getLabel() const {
         return mLabel;
@@ -42,6 +45,7 @@ private:
     QList<QList<gp_Pnt>> mData;
     GeometryType mType;
     double error;
+    QStringList mFeatInfo;
 
     static int ItemCount;
     static double UPTol;

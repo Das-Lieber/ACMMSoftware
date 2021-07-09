@@ -234,6 +234,7 @@ void uniqueID::connectPart(){
         mDecode = mtwentysixDecode;
         mDecode->connectToLPM(mtwentysixDecode);//进行连接
     }
+    emit connectDone();
 }
 void uniqueID::manulConnect(){
     bool flag = mSerial->autoConnect();

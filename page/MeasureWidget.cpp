@@ -6,11 +6,7 @@ MeasureWidget::MeasureWidget(QWidget *parent) :
     ui(new Ui::MeasureWidget)
 {
     ui->setupUi(this);
-    ui->tableWidget_data->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    QList<gp_Pnt> tmp;
-    QList<gp_Pnt> tmp2;
-    measurePnts.append(tmp);
-    virtualPnts.append(tmp2);
+    ui->tableWidget_data->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);    
 }
 
 MeasureWidget::~MeasureWidget()
@@ -20,6 +16,13 @@ MeasureWidget::~MeasureWidget()
 
 void MeasureWidget::AppendPnt(const gp_Pnt &pnt)
 {
+    if(measurePnts.isEmpty()) {
+        QList<gp_Pnt> tmp;
+        QList<gp_Pnt> tmp2;
+        measurePnts.append(tmp);
+        virtualPnts.append(tmp2);
+    }
+
     int index = measurePnts.last().size();
     ui->tableWidget_data->setRowCount(index+1);
     ui->tableWidget_data->setItem(index,0,new QTableWidgetItem(QString::number(pnt.X())));
@@ -72,6 +75,9 @@ void MeasureWidget::on_pushButton_cancle_clicked()
 
 void MeasureWidget::on_pushButton_nextFeature_clicked()
 {
+    if(measurePnts.isEmpty())
+        return;
+
     if(measurePnts.last().isEmpty())
         return;
 

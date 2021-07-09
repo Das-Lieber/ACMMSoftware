@@ -60,9 +60,6 @@ private:
 
     void exUisetMain();
     void ExplanPretreatment();
-
-signals:
-    void connectDone();
 };
 
 #endif // EXPLANATION_H

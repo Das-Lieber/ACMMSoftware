@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *par) : SARibbonMainWindow(par)
 
 MainWindow::~MainWindow()
 {
+    delete constructWidget;
     delete robot;
     for(int i=0;i<mDMISItems.size();++i)
     {
@@ -138,6 +139,9 @@ void MainWindow::initFunction()
     QObject::connect(constructWidget,&constructionWidget::doConstruct,this,&MainWindow::on_doConstruct);
 
     mUniqueID = new uniqueID(this);
+    connect(mUniqueID,&uniqueID::connectDone,this,[=](){
+        setMethod(posDlg);
+    });
     mCalibration = new calibration(this);
     connect(mCalibration,&calibration::readyClose,this,[=]() {
         setMethod(posDlg);
@@ -147,10 +151,7 @@ void MainWindow::initFunction()
         setMethod(posDlg);
     });
     mCommonData = new commonData(this);
-    mExplanation = new explanation(this);
-    connect(mExplanation,&explanation::connectDone,this,[=](){
-        setMethod(posDlg);
-    });
+    mExplanation = new explanation(this);    
     mSerial = new Serial(this);
     mImportFile = nullptr;
 }
@@ -310,6 +311,7 @@ void MainWindow::initDockWidget()
     itemTree->headerItem()->setTextAlignment(0,Qt::AlignHCenter);
     itemTree->addTopLevelItem(new QTreeWidgetItem(itemTree,{"几何"},0));
     itemTree->addTopLevelItem(new QTreeWidgetItem(itemTree,{"测量"},0));
+    itemTree->expandAll();
     treeDock->setWidget(itemTree);
     this->addDockWidget(Qt::LeftDockWidgetArea,treeDock);
 
@@ -1172,6 +1174,7 @@ void MainWindow::on_exportModel()
 void MainWindow::on_addMeasurePnt(const gp_Pnt &pnt)
 {
     SetRobotJoint();
+    qApp->beep();
     if(mCommonData->getRecordFlag() == true){
 
         //实际测点与关节臂末端不一致，显示虚测点
@@ -1242,7 +1245,7 @@ void MainWindow::addItem(QString itemName)
 void MainWindow::addItem(MeasureItem *aItm)
 {
     QTreeWidgetItem *tmpItem = new QTreeWidgetItem;
-    tmpItem->setText(0,aItm->getID());
+    tmpItem->setText(0,aItm->getTitle());
     switch(aItm->Type()) {
     case GeometryType::LINE:
     {
@@ -1284,6 +1287,11 @@ void MainWindow::addItem(MeasureItem *aItm)
     }
 
     itemTree->topLevelItem(1)->addChild(tmpItem);
+    for(int i=0;i<aItm->getFeatureInfo().size();++i) {
+        QTreeWidgetItem *info = new QTreeWidgetItem();
+        info->setText(0,aItm->getFeatureInfo()[i]);
+        tmpItem->addChild(info);
+    }
     mDMISItems.append(aItm);
 }
 

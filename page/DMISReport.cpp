@@ -33,7 +33,7 @@ QPixmap DMISReport::GetReport()
 
     for(int i=0;i<mItems.size();++i) {
         height += 30;
-        QString content = mItems[i]->getID()+" : "+QString::number(mItems[i]->getEvaluate(),'f');
+        QString content = mItems[i]->getTitle()+" : "+QString::number(mItems[i]->getEvaluate(),'f');
         QPen apen = aPainter.pen();
         apen.setColor(Qt::blue);
         aPainter.setPen(apen);

@@ -34,28 +34,33 @@ void MeasureItem::setData(const QList<QList<gp_Pnt>> &data)
     mData = data;
 }
 
-void MeasureItem::Evaluate()
+bool MeasureItem::Evaluate()
 {
     if(mData.isEmpty() || mLabel == nullptr)
-        return;
+        return false;
 
     error = 0;
+    mFeatInfo.clear();
     bool ret;
 
     switch(mType) {
     case GeometryType::UNKNOWN:
     {
-        break;
+        return false;
     }
     case GeometryType::LINE:
     {
         gp_Lin line;
         ret = GeneralTools::FitLine(mData.first().toStdList(),line);
         if(ret) {
-            qDebug()<<"直线向量"<<line.Direction().X()<<line.Direction().Y()<<line.Direction().Z();
+            mFeatInfo.append(QString("向量:( %1 , %2 , %3 )")
+                             .arg(line.Direction().X())
+                             .arg(line.Direction().Y())
+                             .arg(line.Direction().Z()));
 
             error = GeneralTools::EvaluateLine(mData.first(),line);
         }
+        else return false;
 
         break;
     }
@@ -64,11 +69,18 @@ void MeasureItem::Evaluate()
         gp_Pln plane;
         ret = GeneralTools::FitPlane(mData.first().toStdList(),plane);
         if(ret) {
-            qDebug()<<"平面一点"<<plane.Location().X()<<plane.Location().Y()<<plane.Location().Z();
-            qDebug()<<"平面法向"<<plane.Axis().Direction().X()<<plane.Axis().Direction().Y()<<plane.Axis().Direction().Z();
+            mFeatInfo.append(QString("点:( %1 , %2 , %3 )")
+                             .arg(plane.Location().X())
+                             .arg(plane.Location().Y())
+                             .arg(plane.Location().Z()));
+            mFeatInfo.append(QString("法向:( %1 , %2 , %3 )")
+                             .arg(plane.Axis().Direction().X())
+                             .arg(plane.Axis().Direction().Y())
+                             .arg(plane.Axis().Direction().Z()));
 
             error = GeneralTools::EvaluatePlane(mData.first(),plane);
         }
+        else return false;
         break;
     }
     case GeometryType::CIRCLE:
@@ -76,10 +88,18 @@ void MeasureItem::Evaluate()
         gp_Circ circle;
         ret = GeneralTools::FitCicle(mData.first().toStdList(),circle,error);
         if(ret) {
-            qDebug()<<"圆心"<<circle.Location().X()<<circle.Location().Y()<<circle.Location().Z();
-            qDebug()<<"半径"<<circle.Radius();
-            qDebug()<<"圆面法向"<<circle.Axis().Direction().X()<<circle.Axis().Direction().Y()<<circle.Axis().Direction().Z();
+            mFeatInfo.append(QString("圆心:( %1 , %2 , %3 )")
+                             .arg(circle.Location().X())
+                             .arg(circle.Location().Y())
+                             .arg(circle.Location().Z()));
+            mFeatInfo.append(QString("半径: %1")
+                             .arg(circle.Radius()));
+            mFeatInfo.append(QString("圆面法向:( %1 , %2 , %3 )")
+                             .arg(circle.Axis().Direction().X())
+                             .arg(circle.Axis().Direction().Y())
+                             .arg(circle.Axis().Direction().Z()));
         }
+        else return false;
 
         break;
     }
@@ -88,11 +108,16 @@ void MeasureItem::Evaluate()
         gp_Sphere sphere;
         ret = GeneralTools::FitSphere(mData.first().toStdList(),sphere);
         if(ret) {
-            qDebug()<<"球心"<<sphere.Location().X()<<sphere.Location().Y()<<sphere.Location().Z();
-            qDebug()<<"半径"<<sphere.Radius();
+            mFeatInfo.append(QString("球心:( %1 , %2 , %3 )")
+                             .arg(sphere.Location().X())
+                             .arg(sphere.Location().Y())
+                             .arg(sphere.Location().Z()));
+            mFeatInfo.append(QString("半径: %1")
+                             .arg(sphere.Radius()));
 
             error = GeneralTools::EvaluateSphere(mData.first(),sphere);
         }
+        else return false;
 
         break;
     }
@@ -101,11 +126,20 @@ void MeasureItem::Evaluate()
         gp_Cylinder cylinder;
         ret = GeneralTools::FitCylinder(mData.first(),cylinder);
         if(ret) {
-            qDebug()<<"轴向"<<cylinder.Axis().Direction().X()<<cylinder.Axis().Direction().Y()<<cylinder.Axis().Direction().Z();
-            qDebug()<<"半径"<<cylinder.Radius();
+            mFeatInfo.append(QString("轴向:( %1 , %2 , %3 )")
+                             .arg(cylinder.Axis().Direction().X())
+                             .arg(cylinder.Axis().Direction().Y())
+                             .arg(cylinder.Axis().Direction().Z()));
+            mFeatInfo.append(QString("轴上一点:( %1 , %2 , %3 )")
+                             .arg(cylinder.Axis().Location().X())
+                             .arg(cylinder.Axis().Location().Y())
+                             .arg(cylinder.Axis().Location().Z()));
+            mFeatInfo.append(QString("半径: %1")
+                             .arg(cylinder.Radius()));
 
             error = GeneralTools::EvaluateCylinder(mData.first(),cylinder);
         }
+        else return false;
 
         break;
     }
@@ -124,10 +158,26 @@ void MeasureItem::Evaluate()
         ret = GeneralTools::FitCylinder(featA,cylinderA);
         ret &= GeneralTools::FitCylinder(featB,cylinderB);
         if(ret) {
-            qDebug()<<"轴向"<<cylinderA.Axis().Direction().X()<<cylinderA.Axis().Direction().Y()<<cylinderA.Axis().Direction().Z();
-            qDebug()<<"轴向"<<cylinderB.Axis().Direction().X()<<cylinderB.Axis().Direction().Y()<<cylinderB.Axis().Direction().Z();
-            qDebug()<<"位置"<<cylinderA.Axis().Location().X()<<cylinderA.Axis().Location().Y()<<cylinderA.Axis().Location().Z();
-            qDebug()<<"位置"<<cylinderB.Axis().Location().X()<<cylinderB.Axis().Location().Y()<<cylinderB.Axis().Location().Z();
+            mFeatInfo.append(QString("轴向:( %1 , %2 , %3 )")
+                             .arg(cylinderA.Axis().Direction().X())
+                             .arg(cylinderA.Axis().Direction().Y())
+                             .arg(cylinderA.Axis().Direction().Z()));
+            mFeatInfo.append(QString("轴上一点:( %1 , %2 , %3 )")
+                             .arg(cylinderA.Axis().Location().X())
+                             .arg(cylinderA.Axis().Location().Y())
+                             .arg(cylinderA.Axis().Location().Z()));
+            mFeatInfo.append(QString("半径: %1")
+                             .arg(cylinderA.Radius()));
+            mFeatInfo.append(QString("轴向:( %1 , %2 , %3 )")
+                             .arg(cylinderB.Axis().Direction().X())
+                             .arg(cylinderB.Axis().Direction().Y())
+                             .arg(cylinderB.Axis().Direction().Z()));
+            mFeatInfo.append(QString("轴上一点:( %1 , %2 , %3 )")
+                             .arg(cylinderB.Axis().Location().X())
+                             .arg(cylinderB.Axis().Location().Y())
+                             .arg(cylinderB.Axis().Location().Z()));
+            mFeatInfo.append(QString("半径: %1")
+                             .arg(cylinderB.Radius()));
 
             gp_Lin linA = cylinderA.Axis();
             gp_Pnt pA = cylinderA.Location();
@@ -139,8 +189,9 @@ void MeasureItem::Evaluate()
             double NM = QInputDialog::getDouble(nullptr,"输入","请输入理论值",0,0,999);
 
             mLabel->setData(error,LOWTol,UPTol,NM);
-            return;
+            return true;
         }
+        else return false;
         break;
     }
 
@@ -148,9 +199,10 @@ void MeasureItem::Evaluate()
     }
 
     mLabel->setData(error,LOWTol,UPTol);
+    return true;
 }
 
-QString MeasureItem::getID() const
+QString MeasureItem::getTitle() const
 {
     if(mLabel) {
         return mLabel->Title();
