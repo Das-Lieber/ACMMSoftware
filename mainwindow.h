@@ -18,10 +18,11 @@
 
 #include "occ/occview.h"
 #include "occ/modelmaker.h"
+#include "occ/RLAPI_Reader.h"
+#include "occ/Robot.h"
 #include "page/constructionwidget.h"
 #include "page/dialogPosition.h"
 #include "page/MeasureWidget.h"
-#include "RLAPI_Reader.h"
 
 #include "Method/calibration.h"
 #include "Method/coordinate.h"
@@ -33,7 +34,6 @@
 #include "Decode/decode.h"
 #include "commondata.h"
 #include "serial.h"
-#include "Robot.h"
 
 class SARibbonCategory;
 enum class GeometryType;

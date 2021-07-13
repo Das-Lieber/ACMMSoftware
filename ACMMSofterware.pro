@@ -11,13 +11,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-    RLAPI_Reader.cpp \
-    Robot.cpp \
     main.cpp \
     mainwindow.cpp \
     occ/GeneralTools.cpp \
     occ/LabelWidget.cpp \
     occ/MeasureItem.cpp \
+    occ/RLAPI_Reader.cpp \
+    occ/Robot.cpp \
     occ/RobotLink.cpp \
     occ/modelmaker.cpp \
     occ/occview.cpp \
@@ -29,12 +29,12 @@ SOURCES += \
     page/dialogPosition.cpp
 
 HEADERS += \
-    RLAPI_Reader.h \
-    Robot.h \
     mainwindow.h \
     occ/GeneralTools.h \
     occ/LabelWidget.h \
     occ/MeasureItem.h \
+    occ/RLAPI_Reader.h \
+    occ/Robot.h \
     occ/RobotLink.h \
     occ/modelmaker.h \
     occ/occview.h \
