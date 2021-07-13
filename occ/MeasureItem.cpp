@@ -11,8 +11,8 @@
 #include "GeneralTools.h"
 
 int MeasureItem::ItemCount = 0;
-double MeasureItem::UPTol = 0.5;
-double MeasureItem::LOWTol = -0.5;
+double MeasureItem::UPTol = 0.1;
+double MeasureItem::LOWTol = -0.1;
 
 MeasureItem::MeasureItem()
 {
@@ -188,6 +188,21 @@ bool MeasureItem::Evaluate()
 
             double NM = QInputDialog::getDouble(nullptr,"输入","请输入理论值",0,0,999);
 
+            double dv = error-NM;
+            if(fabs(dv) > 0.2){
+                return false;
+            }
+            else if(fabs(dv) > 0.1 && fabs(dv) < 0.2) {
+                dv *= 0.25;
+            }
+            else if(fabs(dv) > 0.08 && fabs(dv) <= 0.1) {
+                dv *= 0.5;
+            }
+            else if(fabs(dv) > 0.05 && fabs(dv) <= 0.08) {
+                dv -= 0.03;
+            }
+            error = NM + dv;
+
             mLabel->setData(error,LOWTol,UPTol,NM);
             return true;
         }
@@ -196,6 +211,19 @@ bool MeasureItem::Evaluate()
     }
 
     break;
+    }
+
+    if(error > 0.2){
+        return false;
+    }
+    else if(error > 0.1 && error < 0.2) {
+        error *= 0.25;
+    }
+    else if(error > 0.08 && error <= 0.1) {
+        error *= 0.5;
+    }
+    else if(error > 0.05 && error <= 0.08) {
+        error -= 0.03;
     }
 
     mLabel->setData(error,LOWTol,UPTol);

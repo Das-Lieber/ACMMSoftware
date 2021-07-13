@@ -86,7 +86,7 @@ protected:
 public:
     gp_Pnt point2dTo3d(Standard_Real x, Standard_Real y);
 
-    void createLabel(QList<QList<gp_Pnt> > plist, QList<QList<gp_Pnt> > virtData, const GeometryType &typ);
+    void createLabel(QList<QList<gp_Pnt> > plist, QList<QList<gp_Pnt> > virtData, QList<QList<Handle(AIS_InteractiveObject) > > shapes, const GeometryType &typ);
     void drawLabelLeadLine(gp_Pnt P1, gp_Pnt P2);
     void AutoArrangeLabel();
     void showLabelandLine(vector<pair<double,double>> &line,

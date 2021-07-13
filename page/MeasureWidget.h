@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include <gp_Pnt.hxx>
+#include <AIS_InteractiveObject.hxx>
 
 namespace Ui {
 class MeasureWidget;
@@ -19,6 +20,7 @@ public:
 
     void AppendPnt(const gp_Pnt &pnt);
     void AppendVirtualPnt(const gp_Pnt &pnt);
+    void AppendMeasureShape(Handle(AIS_InteractiveObject) pnt_ais);
     void SetTitle(const QString &str);
     void SetFeatureSize(int val);
 
@@ -32,11 +34,12 @@ private:
 
     QList<QList<gp_Pnt>> measurePnts;
     QList<QList<gp_Pnt>> virtualPnts;
+    QList<QList<Handle(AIS_InteractiveObject) >> measureShapes;
 
     int featureSize;
 
 signals:
-    void measureEnd(const QList<QList<gp_Pnt>> &result, const QList<QList<gp_Pnt>> &virtDtat);
+    void measureEnd(const QList<QList<gp_Pnt>> &result, const QList<QList<gp_Pnt>> &virtDtat, const QList<QList<Handle(AIS_InteractiveObject) >> &shapes);
     void readyClose();
 };
 

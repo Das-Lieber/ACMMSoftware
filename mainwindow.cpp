@@ -121,9 +121,15 @@ void MainWindow::initFunction()
         Handle(AIS_Shape) ptAIS = new AIS_Shape(aPt);
         ptAIS->Attributes()->SetPointAspect(new Prs3d_PointAspect(Aspect_TOM_O_STAR,Quantity_NOC_GREEN,1));
         occWidget->getContext()->Display(ptAIS,Standard_True);
+        Standard_Integer x2d,y2d;
+        occWidget->getView()->Convert(ResultPoint.X(),ResultPoint.Y(),ResultPoint.Z()
+                                      ,x2d,y2d);
+        occWidget->getView()->Place(x2d,y2d,10);
+
         if(!measDock->isHidden()) {
             measWid->AppendPnt(ResultPoint);
             measWid->AppendVirtualPnt(ResultPoint);
+            measWid->AppendMeasureShape(ptAIS);
         }
     });
 #endif
@@ -331,11 +337,13 @@ void MainWindow::initDockWidget()
     measDock->hide();
     currentType = GeometryType::UNKNOWN;
 
-    connect(measWid,&MeasureWidget::measureEnd,this,[=](const QList<QList<gp_Pnt>> &result, const QList<QList<gp_Pnt>> &virtuData) {
+    connect(measWid,&MeasureWidget::measureEnd,this,[=](const QList<QList<gp_Pnt>> &result,
+            const QList<QList<gp_Pnt>> &virtuData,
+            const QList<QList<Handle(AIS_InteractiveObject) >> &shapes) {
         if(result.isEmpty())
             return;
 
-       occWidget->createLabel(result,virtuData,currentType);
+       occWidget->createLabel(result,virtuData,shapes,currentType);
     });
     connect(measWid,&MeasureWidget::readyClose,this,[=]() {
         measDock->hide();
@@ -1173,8 +1181,7 @@ void MainWindow::on_exportModel()
 
 void MainWindow::on_addMeasurePnt(const gp_Pnt &pnt)
 {
-    SetRobotJoint();
-    qApp->beep();
+    SetRobotJoint();    
     if(mCommonData->getRecordFlag() == true){
 
         //实际测点与关节臂末端不一致，显示虚测点
@@ -1182,10 +1189,16 @@ void MainWindow::on_addMeasurePnt(const gp_Pnt &pnt)
         Handle(AIS_Shape) ptAIS = new AIS_Shape(aPt);
         ptAIS->Attributes()->SetPointAspect(new Prs3d_PointAspect(Aspect_TOM_O_STAR,Quantity_NOC_GREEN,1));
         occWidget->getContext()->Display(ptAIS,Standard_True);
+        Standard_Integer x2d,y2d;
+        occWidget->getView()->Convert(robot->GetTCP().X(),robot->GetTCP().Y(),robot->GetTCP().Z()
+                                      ,x2d,y2d);
+        occWidget->getView()->Place(x2d,y2d,10);
 
         if(!measDock->isHidden()) {
             measWid->AppendPnt(pnt);
             measWid->AppendVirtualPnt(robot->GetTCP());
+            measWid->AppendMeasureShape(ptAIS);
+            qApp->beep();
         }
     }    
 }
@@ -1382,6 +1395,7 @@ void MainWindow::test()
     if(!measDock->isHidden()) {
         measWid->AppendPnt(pnt);
         measWid->AppendVirtualPnt(robot->GetTCP());
+        measWid->AppendMeasureShape(ptAIS);
     }
 
     occWidget->getView()->Update();

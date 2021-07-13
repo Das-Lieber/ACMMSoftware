@@ -5,6 +5,7 @@
 #include "modelmaker.h"
 
 #include <QScreen>
+#include <QMessageBox>
 
 #include <ProjLib.hxx>
 #include <ElSLib.hxx>
@@ -252,7 +253,7 @@ gp_Pnt occView::point2dTo3d(Standard_Real x, Standard_Real y)
  * 功能：生成标签及引线
  * 说明：以全局变量来记录各个类型测量点的数量
  * **********************************************/
-void occView::createLabel(QList<QList<gp_Pnt>> plist, QList<QList<gp_Pnt>> virtData, const GeometryType &typ)
+void occView::createLabel(QList<QList<gp_Pnt>> plist, QList<QList<gp_Pnt>> virtData, QList<QList<Handle(AIS_InteractiveObject) >> shapes, const GeometryType &typ)
 {
     gp_Pnt P1;//所有点的中心位置
     int size = 0;
@@ -287,6 +288,15 @@ void occView::createLabel(QList<QList<gp_Pnt>> plist, QList<QList<gp_Pnt>> virtD
     aItm->setData(plist);
     if(!aItm->Evaluate())
     {
+        QMessageBox::critical(this,"错误","测点过少或存在较大偏差，请重新测量！");
+
+        foreach(QList<Handle(AIS_InteractiveObject)> list, shapes) {
+            foreach(Handle(AIS_InteractiveObject) obj, list) {
+                m_context->Remove(obj,Standard_False);
+            }
+        }
+        m_view->Update();
+
         delete aItm;
         delete measureLabel;
         return;

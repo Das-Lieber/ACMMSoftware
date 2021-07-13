@@ -19,8 +19,10 @@ void MeasureWidget::AppendPnt(const gp_Pnt &pnt)
     if(measurePnts.isEmpty()) {
         QList<gp_Pnt> tmp;
         QList<gp_Pnt> tmp2;
+        QList<Handle(AIS_InteractiveObject)> tmp3;
         measurePnts.append(tmp);
         virtualPnts.append(tmp2);
+        measureShapes.append(tmp3);
     }
 
     int index = measurePnts.last().size();
@@ -36,6 +38,11 @@ void MeasureWidget::AppendPnt(const gp_Pnt &pnt)
 void MeasureWidget::AppendVirtualPnt(const gp_Pnt &pnt)
 {
     virtualPnts.last().append(pnt);
+}
+
+void MeasureWidget::AppendMeasureShape(Handle(AIS_InteractiveObject) pnt_ais)
+{
+    measureShapes.last().append(pnt_ais);
 }
 
 void MeasureWidget::SetTitle(const QString &str)
@@ -56,9 +63,10 @@ void MeasureWidget::SetFeatureSize(int val)
 
 void MeasureWidget::on_pushButton_sure_clicked()
 {
-    emit measureEnd(measurePnts,virtualPnts);
+    emit measureEnd(measurePnts,virtualPnts,measureShapes);
     measurePnts.clear();
     virtualPnts.clear();
+    measureShapes.clear();
     ui->tableWidget_data->clear();
     ui->tableWidget_data->setRowCount(0);
     emit readyClose();
@@ -68,6 +76,7 @@ void MeasureWidget::on_pushButton_cancle_clicked()
 {
     measurePnts.clear();
     virtualPnts.clear();
+    measureShapes.clear();
     ui->tableWidget_data->clear();
     ui->tableWidget_data->setRowCount(0);
     emit readyClose();
@@ -83,6 +92,8 @@ void MeasureWidget::on_pushButton_nextFeature_clicked()
 
     QList<gp_Pnt> tmp;
     QList<gp_Pnt> tmp2;
+    QList<Handle(AIS_InteractiveObject)> tmp3;
     measurePnts.append(tmp);
     virtualPnts.append(tmp2);
+    measureShapes.append(tmp3);
 }
